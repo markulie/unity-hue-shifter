@@ -1,17 +1,31 @@
 ﻿using UnityEngine;
- 
+
+[RequireComponent(typeof(Renderer))]
 public class HueShifter : MonoBehaviour
 {
-    public float Speed = 1;
+    private static readonly int ColorId = Shader.PropertyToID("_Color");
+
+    [SerializeField]
+    private float speed = 1f;
+
     private Renderer rend;
- 
-    void Start()
+    private MaterialPropertyBlock propertyBlock;
+
+    private void Awake()
     {
         rend = GetComponent<Renderer>();
+        propertyBlock = new MaterialPropertyBlock();
     }
- 
-    void Update()
+
+    private void Update()
     {
-        rend.material.SetColor("_Color", HSBColor.ToColor(new HSBColor( Mathf.PingPong(Time.time * Speed, 1), 1, 1)));
+        HSBColor color = new HSBColor(
+            Mathf.PingPong(Time.time * speed, 1f),
+            1f,
+            1f);
+
+        rend.GetPropertyBlock(propertyBlock);
+        propertyBlock.SetColor(ColorId, color.ToColor());
+        rend.SetPropertyBlock(propertyBlock);
     }
 }
